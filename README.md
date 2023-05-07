@@ -104,7 +104,7 @@
   
   #### In task.cpp :
   
-  ```cpp #113-115
+  ```cpp #1
   void Tasks::OpenCamera(void *arg){
     cout << "Start " << __PRETTY_FUNCTION__ << endl << flush;
     // Synchronization barrier (waiting that all tasks are starting)
