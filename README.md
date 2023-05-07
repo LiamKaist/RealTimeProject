@@ -1,16 +1,19 @@
 # RealTimeProject
 
 Feature number 14 :
+
   Objective :
   
   Explanations/Reasoning :
   
   Added one shared variable :
+  
     In tasks.h :
     
       Camera camera; (Camera is a class from camera.h, camera.cpp)
  
   Added one mutex:
+  
     In tasks.h :
     
       RT_MUTEX mutex_openCamera;
@@ -23,6 +26,7 @@ Feature number 14 :
       }
   
   Added one semaphore:
+  
     In tasks.h :
     
       RT_SEM sem_openCamera;
@@ -45,6 +49,7 @@ Feature number 14 :
     void OpenCamera(void *arg);
     
     In tasks.cpp :
+    
     Task Creation :
     
       if (err = rt_task_start(&th_closeCamera, (void(*)(void*)) & Tasks::CloseCamera, this)) {
@@ -79,11 +84,13 @@ Feature number 14 :
  
 
 Feature number 15 :
+
   Objective :
   
   Explanations/Reasoning :
 
   Added code to openCamera task :
+  
         In task.cpp :
         
           rt_mutex_acquire(&mutex_openCamera, TM_INFINITE);
@@ -101,11 +108,13 @@ Feature number 15 :
     
 
 Feature number 16 :
+
   Objective :
   
   Explanations/Reasoning :
   
   Added one mutex :
+  
     In tasks.h :
     
       /**
@@ -122,9 +131,11 @@ Feature number 16 :
       }
     
   Added one task :
+  
     In tasks.h :
     
     In tasks.cpp :
+    
       Task creation :
       
         if (err = rt_task_create(&th_closeCamera, "th_closeCamera", 0, PRIORITY_TCAMERA, 0)) {
