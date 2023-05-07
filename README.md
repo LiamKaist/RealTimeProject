@@ -2,7 +2,7 @@
 
 ## Feature number 14 :
 
-  ### Objective :
+### Objective :
   
 ### Explanations/Reasoning :
 
@@ -10,8 +10,8 @@
 
 #### In tasks.h :
 
-```
-Camera camera; (Camera is a class from camera.h, camera.cpp)
+```cpp
+Camera camera; //Camera is a class from camera.h, camera.cpp
 ```
 
 ### Added one mutex:
@@ -104,13 +104,13 @@ void Tasks::OpenCamera(void *arg){
 
 #### In task.cpp :
   
-```cpp #108
+```cpp 
 void Tasks::OpenCamera(void *arg){
   cout << "Start " << __PRETTY_FUNCTION__ << endl << flush;
   // Synchronization barrier (waiting that all tasks are starting)
   rt_sem_p(&sem_barrier, TM_INFINITE);
   Message * msg;
-   RTIME task_period_ns= 100000000; //100 ms waiting time
+  ***RTIME task_period_ns= 100000000; //100 ms waiting time***
   //Making the task periodic
   rt_task_set_periodic(NULL, TM_NOW, rt_timer_ns2ticks(task_period_ns));
 
