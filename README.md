@@ -109,8 +109,10 @@ Capture an Image using the camera every 100ms, then send it to the Monitor to be
 ### Explanations/Reasoning :
 
 Within the OpenCamera task, we make it periodic with :
-***RTIME task_period_ns= 100000000; //100 ms waiting time
-rt_task_set_periodic(NULL, TM_NOW, rt_timer_ns2ticks(task_period_ns));***
+
+***RTIME task_period_ns= 100000000; //100 ms waiting time***
+
+***rt_task_set_periodic(NULL, TM_NOW, rt_timer_ns2ticks(task_period_ns));***
 
 Before grabbing an image, the mutex ***mutex_openCamera*** is acquired, the image is grabbed and attached to the pointer ***img*** .
 Using a constructor from the Message class , we convert the img to a message able to be sent to the Monitor queue.
