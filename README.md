@@ -18,13 +18,13 @@ Camera camera; (Camera is a class from camera.h, camera.cpp)
 
 #### In tasks.h :
 
-```
+```cpp
 RT_MUTEX mutex_openCamera;
 ```
 
 #### In tasks.cpp :
 
-```  
+```cpp  
 if (err = rt_mutex_create(&mutex_openCamera, NULL)) {
   cerr << "Error mutex create: " << strerror(-err) << endl << flush;
   exit(EXIT_FAILURE);
@@ -35,13 +35,13 @@ if (err = rt_mutex_create(&mutex_openCamera, NULL)) {
 
 #### In tasks.h :
 
-```
+```cpp
 RT_SEM sem_openCamera;
 ```
 
 #### In tasks.cpp :
 
-```
+```cpp
 if (err = rt_sem_create(&sem_openCamera, NULL, 0, S_FIFO)) {
   cerr << "Error semaphore create: " << strerror(-err) << endl << flush;
   exit(EXIT_FAILURE);
@@ -52,7 +52,7 @@ if (err = rt_sem_create(&sem_openCamera, NULL, 0, S_FIFO)) {
 
 #### In tasks.h :
 
-```
+```cpp
 /**
  * @brief Thread handling the opening of the camera lens.
  */
@@ -64,7 +64,7 @@ void OpenCamera(void *arg);
 
 ##### Task Creation :
 
-```
+```cpp
 if (err = rt_task_start(&th_closeCamera, (void(*)(void*)) & Tasks::CloseCamera, this)) {
   cerr << "Error task start: " << strerror(-err) << endl << flush;
   exit(EXIT_FAILURE);
@@ -73,7 +73,7 @@ if (err = rt_task_start(&th_closeCamera, (void(*)(void*)) & Tasks::CloseCamera, 
 
 ##### Task Code :
 
-```
+```cpp
 void Tasks::OpenCamera(void *arg){
   cout << "Start " << __PRETTY_FUNCTION__ << endl << flush;
   // Synchronization barrier (waiting that all tasks are starting)
@@ -104,7 +104,7 @@ void Tasks::OpenCamera(void *arg){
 
 #### In task.cpp :
   
-```cpp #1
+```cpp #108
 void Tasks::OpenCamera(void *arg){
   cout << "Start " << __PRETTY_FUNCTION__ << endl << flush;
   // Synchronization barrier (waiting that all tasks are starting)
@@ -152,7 +152,7 @@ void Tasks::OpenCamera(void *arg){
 
 #### In tasks.h :
   
-```
+```cpp
 /**
  * @brief Thread handling the closing of the camera lens.
  */
@@ -162,7 +162,7 @@ void CloseCamera(void *arg);
 
 #### In tasks.cpp :
 
-```
+```cpp
 if (err = rt_mutex_create(&mutex_closeCamera, NULL)) {
   cerr << "Error mutex create: " << strerror(-err) << endl << flush;
   exit(EXIT_FAILURE);
@@ -177,7 +177,7 @@ if (err = rt_mutex_create(&mutex_closeCamera, NULL)) {
 
 ##### Task creation :
   
-```
+```cpp
 if (err = rt_task_create(&th_closeCamera, "th_closeCamera", 0, PRIORITY_TCAMERA, 0)) {
   cerr << "Error task create: " << strerror(-err) << endl << flush;
   exit(EXIT_FAILURE);
@@ -186,7 +186,7 @@ if (err = rt_task_create(&th_closeCamera, "th_closeCamera", 0, PRIORITY_TCAMERA,
 
 ##### Task code :
 
-```
+```cpp
 void Tasks::CloseCamera(void *arg)
 {
     cout << "Start " << __PRETTY_FUNCTION__ << endl << flush;
