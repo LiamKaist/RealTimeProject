@@ -95,9 +95,9 @@ Feature number 15 :
             // Synchronization barrier (waiting that all tasks are starting)
             rt_sem_p(&sem_barrier, TM_INFINITE);
             Message * msg;
-            RTIME task_period_ns= 100000000; //100 ms waiting time
+            ** RTIME task_period_ns= 100000000; //100 ms waiting time 
             //Making the task periodic
-            rt_task_set_periodic(NULL, TM_NOW, rt_timer_ns2ticks(task_period_ns));
+            rt_task_set_periodic(NULL, TM_NOW, rt_timer_ns2ticks(task_period_ns)); **
 
             while(1){
                 msg = ReadInQueue(&q_messageToMon); //No need for mutex here
