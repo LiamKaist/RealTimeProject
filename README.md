@@ -10,9 +10,9 @@
   
   In tasks.h :
     
-    ```
-    Camera camera; (Camera is a class from camera.h, camera.cpp)
-    ```
+  ```
+  Camera camera; (Camera is a class from camera.h, camera.cpp)
+  ```
       
   ### Added one mutex:
   
