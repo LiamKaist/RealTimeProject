@@ -116,7 +116,8 @@ Within the OpenCamera task, we make it periodic with :
 
 Before grabbing an image, the mutex ***mutex_openCamera*** is acquired, the image is grabbed and attached to the pointer ***img*** .
 Using a constructor from the Message class , we convert the img to a message able to be sent to the Monitor queue.
-Using ***WriteInQueue()***, the pointer to the message image is given as a parameter, a reference to the monitor queue is also provided.
+Using ***WriteInQueue()*** (the pointer to the message image is given as a parameter, a reference to the monitor queue is also provided),
+the image is sent to the monitor for it to be displayed.
 
 ### Added code to openCamera task :
 
