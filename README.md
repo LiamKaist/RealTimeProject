@@ -3,8 +3,14 @@
 ## Feature number 14 :
 
 ### Objective :
+
+Open the camera upon receiving a message from the Monitor.
   
 ### Explanations/Reasoning :
+
+We created a shared variable which represents the camera and its state.
+Upon receiving a message ***MESSAGE_CAM_OPEN*** on the queue from the monitor, 
+the task acquires the mutex and opens the camera with the method ***Open()*** from its class.
 
 ### Added one shared variable :
 
@@ -98,7 +104,17 @@ void Tasks::OpenCamera(void *arg){
 
 ### Objective :
 
+Capture an Image using the camera every 100ms, then send it to the Monitor to be displayed.
+
 ### Explanations/Reasoning :
+
+Within the OpenCamera task, we make it periodic with :
+***RTIME task_period_ns= 100000000; //100 ms waiting time
+rt_task_set_periodic(NULL, TM_NOW, rt_timer_ns2ticks(task_period_ns));***
+
+Before grabbing an image, the mutex ***mutex_openCamera*** is acquired, the image is grabbed and attached to the pointer ***img*** .
+Using a constructor from the Message class , we convert the img to a message able to be sent to the Monitor queue.
+Using ***WriteInQueue()***, the pointer to the message image is given as a parameter, a reference to the monitor queue is also provided.
 
 ### Added code to openCamera task :
 
@@ -145,7 +161,12 @@ void Tasks::OpenCamera(void *arg){
 
 ### Objective :
 
+Close the camera upon receiving a message from the Monitor.
+
 ### Explanations/Reasoning :
+
+Upon receiving a message ***MESSAGE_CAM_CLOSE*** on the queue from the monitor, 
+the task acquires the mutex and closes the camera with the method ***Close()*** from its class.
 
 ### Added one mutex :
 
