@@ -65,6 +65,7 @@ private:
     ComMonitor monitor;
     ComRobot robot;
     Camera camera;
+    Arena * arenap;
     
     int robotStarted = 0;
     int move = MESSAGE_ROBOT_STOP;
@@ -81,6 +82,7 @@ private:
     
     RT_TASK th_openCamera;
     RT_TASK th_closeCamera;
+    RT_TASK th_findArena;
     
     /**********************************************************************/
     /* Mutex                                                              */
@@ -92,6 +94,7 @@ private:
     
     RT_MUTEX mutex_openCamera;
     RT_MUTEX mutex_closeCamera;
+    RT_MUTEX mutex_findArena;
 
     /**********************************************************************/
     /* Semaphores                                                         */
@@ -101,7 +104,7 @@ private:
     RT_SEM sem_serverOk;
     RT_SEM sem_startRobot;
     
-    RT_SEM sem_openCamera; //May be unnecessary
+    RT_SEM sem_arenaDone; //May be unnecessary
     
     /**********************************************************************/
     /* Message queues                                                     */
@@ -154,6 +157,12 @@ private:
     
     void CloseCamera(void *arg);
     
+    /**
+     * @brief Thread handling the search for the arena.
+     */
+
+    void FindArena(void *arg);
+
     /**********************************************************************/
     /* Queue services                                                     */
     /**********************************************************************/

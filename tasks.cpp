@@ -84,6 +84,11 @@ void Tasks::Init() {
         cerr << "Error mutex create: " << strerror(-err) << endl << flush;
         exit(EXIT_FAILURE);
     }
+
+    if (err = rt_mutex_create(&mutex_findArena, NULL)) {
+        cerr << "Error mutex create: " << strerror(-err) << endl << flush;
+        exit(EXIT_FAILURE);
+    }
     cout << "Mutexes created successfully" << endl << flush;
 
     /**************************************************************************************/
@@ -105,8 +110,8 @@ void Tasks::Init() {
         cerr << "Error semaphore create: " << strerror(-err) << endl << flush;
         exit(EXIT_FAILURE);
     }
-    
-    if (err = rt_sem_create(&sem_openCamera, NULL, 0, S_FIFO)) {
+
+    if (err = rt_sem_create(&sem_arenaDone, NULL, 0, S_FIFO)) {
         cerr << "Error semaphore create: " << strerror(-err) << endl << flush;
         exit(EXIT_FAILURE);
     }
@@ -146,6 +151,11 @@ void Tasks::Init() {
     }
 
     if (err = rt_task_create(&th_closeCamera, "th_closeCamera", 0, PRIORITY_TCAMERA, 0)) {
+        cerr << "Error task create: " << strerror(-err) << endl << flush;
+        exit(EXIT_FAILURE);
+    }
+
+    if (err = rt_task_create(&th_findArena, "th_findArena", 0, PRIORITY_TCAMERA, 0)) { //Peut etre faudrait-il changer une priorité?
         cerr << "Error task create: " << strerror(-err) << endl << flush;
         exit(EXIT_FAILURE);
     }
@@ -200,6 +210,11 @@ void Tasks::Run() {
     }
 
     if (err = rt_task_start(&th_closeCamera, (void(*)(void*)) & Tasks::CloseCamera, this)) {
+        cerr << "Error task start: " << strerror(-err) << endl << flush;
+        exit(EXIT_FAILURE);
+    }
+
+    if (err = rt_task_start(&th_findArena, (void(*)(void*)) & Tasks::FindArena, this)) {
         cerr << "Error task start: " << strerror(-err) << endl << flush;
         exit(EXIT_FAILURE);
     }
@@ -435,13 +450,15 @@ void Tasks::OpenCamera(void *arg){
     while(1){
         msg = ReadInQueue(&q_messageToMon); //No need for mutex here
         
-        rt_sem_p(&sem_openCamera, TM_INFINITE); //Is this semaphore truly necessary?
         if(msg->GetID() == MESSAGE_CAM_OPEN){
             cout << "Opening Camera..." << endl << flush;
             rt_mutex_acquire(&mutex_openCamera, TM_INFINITE);
             camera.Open();
             rt_mutex_release(&mutex_openCamera);   
+        }else if(msg->GetID() == MESSAGE_CAM_ASK_ARENA){
+            rt_sem_p(&sem_arenaDone, TM_INFINITE);//Block task with a semaphore
         }
+        delete(msg); //Has to be deleted manually
         
         rt_mutex_acquire(&mutex_openCamera, TM_INFINITE);
         if(camera.IsOpen()){
@@ -455,7 +472,6 @@ void Tasks::OpenCamera(void *arg){
             rt_mutex_release(&mutex_openCamera);
             cout << "Camera failed to open" << endl << flush;
         } 
-        
     }
 }
 
@@ -479,6 +495,62 @@ void Tasks::CloseCamera(void *arg)
             camera.Close();
             rt_mutex_release(&mutex_closeCamera, TM_INFINITE);
         }
+        delete(msg); //Has to be deleted manually
+    }
+}
+
+void Tasks::FindArena(void *arg)
+{
+    cout << "Start " << __PRETTY_FUNCTION__ << endl << flush;
+    // Synchronization barrier (waiting that all tasks are starting)
+    rt_sem_p(&sem_barrier, TM_INFINITE);
+    Message * msg;
+    Message * confirmation;
+    Arena * arena;
+
+    while(1)
+    {
+        msg = ReadInQueue(&q_messageToMon); //Waiting for a message from Monitor, have to delete it at the end!
+        if(msg->GetID() == MESSAGE_CAM_ASK_ARENA)
+        {
+            //Execute the code to find the arena
+            rt_mutex_acquire(&mutex_findArena, TM_INFINITE);
+            if(camera.IsOpen()){
+                Img * img = new Img(camera.Grab()); //Grab image to analyse
+                arena=new img->SearchArena(); // [Not entirely sure about this]
+                if (arena == NULL){
+                    //Send error message to monitor
+                    Message * msgSend;
+                    msgSend = new Message(MESSAGE_ANSWER_NACK);
+                    WriteInQueue(&q_messageToMon, msgSend); //Message will be deleted by sendToMon
+                }else{
+                    img->DrawArena(arena);
+                    //Send image to monitor
+                    MessageImg * msgImg = new MessageImg(MESSAGE_CAM_IMAGE, img);
+                    WriteInQueue(&q_messageToMon, msgImg); //Message will be deleted by sendToMon
+                }
+                rt_mutex_release(&mutex_findArena);
+                //Wait for confirmation from user
+                confirmation = ReadInQueue(&q_messageToMon);
+
+                if(confirmation->GetID() == MESSAGE_CAM_ARENA_CONFIRM){
+                    rt_mutex_acquire(&mutex_findArena, TM_INFINITE);
+                    arenap = arena; //Not sure if a pointer can be put in shared data
+                    rt_mutex_release(&mutex_findArena);
+                }else if(confirmation->GetID() == MESSAGE_CAM_ARENA_INFIRM){
+                    //Delete arena object
+                    delete(arena); //Not sure if delete can delete any kind of pointer's content
+                }
+                delete(confirmation);
+                rt_sem_broadcast(&sem_arenaDone); //Sending semaphore to signal periodic task OpenCamera to take pictures
+            }else{
+                cout << "Camera is not open, cannot analyse image to find arena" << endl << flush;
+                //send semaphore and send error message
+                rt_mutex_release(&mutex_findArena);
+                rt_sem_broadcast(&sem_arenaDone);
+            }
+        } 
+        delete(msg); //Has to be deleted manually
     }
 }
 
