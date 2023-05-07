@@ -541,6 +541,7 @@ void Tasks::FindArena(void *arg)
                     //Delete arena object
                     delete(arena); //Not sure if delete can delete any kind of pointer's content
                 }
+                delete(confirmation);
                 rt_sem_broadcast(&sem_arenaDone); //Sending semaphore to signal periodic task OpenCamera to take pictures
             }else{
                 cout << "Camera is not open, cannot analyse image to find arena" << endl << flush;
