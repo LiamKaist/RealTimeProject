@@ -7,13 +7,16 @@ Feature number 14 :
   
   Added one shared variable :
     In tasks.h :
+    
       Camera camera; (Camera is a class from camera.h, camera.cpp)
  
   Added one mutex:
     In tasks.h :
+    
       RT_MUTEX mutex_openCamera;
     
     In tasks.cpp :
+    
       if (err = rt_mutex_create(&mutex_openCamera, NULL)) {
         cerr << "Error mutex create: " << strerror(-err) << endl << flush;
         exit(EXIT_FAILURE);
@@ -21,9 +24,11 @@ Feature number 14 :
   
   Added one semaphore:
     In tasks.h :
+    
       RT_SEM sem_openCamera;
     
     In tasks.cpp :
+    
       if (err = rt_sem_create(&sem_openCamera, NULL, 0, S_FIFO)) {
         cerr << "Error semaphore create: " << strerror(-err) << endl << flush;
         exit(EXIT_FAILURE);
@@ -41,13 +46,15 @@ Feature number 14 :
     
     In tasks.cpp :
     Task Creation :
+    
       if (err = rt_task_start(&th_closeCamera, (void(*)(void*)) & Tasks::CloseCamera, this)) {
         cerr << "Error task start: " << strerror(-err) << endl << flush;
         exit(EXIT_FAILURE);
       }
     
     Task Code :
-      void Tasks::OpenCamera(void *arg){
+    
+     void Tasks::OpenCamera(void *arg){
         cout << "Start " << __PRETTY_FUNCTION__ << endl << flush;
         // Synchronization barrier (waiting that all tasks are starting)
         rt_sem_p(&sem_barrier, TM_INFINITE);
@@ -99,7 +106,8 @@ Feature number 16 :
   Explanations/Reasoning :
   
   Added one mutex :
-    In tasks.h : 
+    In tasks.h :
+    
       /**
        * @brief Thread handling the closing of the camera lens.
        */
@@ -107,6 +115,7 @@ Feature number 16 :
       void CloseCamera(void *arg);
     
     In tasks.cpp :
+    
       if (err = rt_mutex_create(&mutex_closeCamera, NULL)) {
         cerr << "Error mutex create: " << strerror(-err) << endl << flush;
         exit(EXIT_FAILURE);
@@ -117,12 +126,14 @@ Feature number 16 :
     
     In tasks.cpp :
       Task creation :
+      
         if (err = rt_task_create(&th_closeCamera, "th_closeCamera", 0, PRIORITY_TCAMERA, 0)) {
           cerr << "Error task create: " << strerror(-err) << endl << flush;
           exit(EXIT_FAILURE);
         }
         
       Task code :
+      
         void Tasks::CloseCamera(void *arg)
         {
             cout << "Start " << __PRETTY_FUNCTION__ << endl << flush;
