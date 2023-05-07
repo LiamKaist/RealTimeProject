@@ -1,18 +1,18 @@
 # RealTimeProject
 
-Feature number 14 :
+## Feature number 14 :
 
-  Objective :
+  ### Objective :
   
-  Explanations/Reasoning :
+  ### Explanations/Reasoning :
   
-  Added one shared variable :
+  ### Added one shared variable :
   
     In tasks.h :
     
       Camera camera; (Camera is a class from camera.h, camera.cpp)
  
-  Added one mutex:
+  ### Added one mutex:
   
     In tasks.h :
     
@@ -25,7 +25,7 @@ Feature number 14 :
         exit(EXIT_FAILURE);
       }
   
-  Added one semaphore:
+  ### Added one semaphore:
   
     In tasks.h :
     
@@ -38,7 +38,7 @@ Feature number 14 :
         exit(EXIT_FAILURE);
       }
   
-  Added one task:
+  ### Added one task:
     
     In tasks.h :
     
@@ -80,13 +80,13 @@ Feature number 14 :
     
  
 
-Feature number 15 :
+## Feature number 15 :
 
-  Objective :
+  ### Objective :
   
-  Explanations/Reasoning :
+  ### Explanations/Reasoning :
 
-  Added code to openCamera task :
+  ### Added code to openCamera task :
   
         In task.cpp :
           
@@ -95,9 +95,9 @@ Feature number 15 :
             // Synchronization barrier (waiting that all tasks are starting)
             rt_sem_p(&sem_barrier, TM_INFINITE);
             Message * msg;
-            **RTIME task_period_ns= 100000000; //100 ms waiting time**
-            **//Making the task periodic**
-            **rt_task_set_periodic(NULL, TM_NOW, rt_timer_ns2ticks(task_period_ns));**
+             RTIME task_period_ns= 100000000; //100 ms waiting time
+            //Making the task periodic
+            rt_task_set_periodic(NULL, TM_NOW, rt_timer_ns2ticks(task_period_ns));
 
             while(1){
                 msg = ReadInQueue(&q_messageToMon); //No need for mutex here
@@ -126,13 +126,13 @@ Feature number 15 :
         }
     
 
-Feature number 16 :
+## Feature number 16 :
 
-  Objective :
+  ### Objective :
   
-  Explanations/Reasoning :
+  ### Explanations/Reasoning :
   
-  Added one mutex :
+  ### Added one mutex :
   
     In tasks.h :
     
@@ -149,7 +149,7 @@ Feature number 16 :
         exit(EXIT_FAILURE);
       }
     
-  Added one task :
+  ### Added one task :
   
     In tasks.h :
     
