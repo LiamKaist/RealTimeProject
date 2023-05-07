@@ -77,18 +77,20 @@ Feature number 15 :
   Explanations/Reasoning :
 
   Added code to openCamera task :
-        rt_mutex_acquire(&mutex_openCamera, TM_INFINITE);
-        if(camera.IsOpen()){
-            cout << "Camera is open" << endl << flush;
-            rt_task_wait_period(NULL); //Wait for period to grab the image
-            Img * img = new Img(camera.Grab());
-            MessageImg * msgImg = new MessageImg(MESSAGE_CAM_IMAGE, img);
-            WriteInQueue(&q_messageToMon, msgImg); 
-            rt_mutex_release(&mutex_openCamera);
-        }else{
-            rt_mutex_release(&mutex_openCamera);
-            cout << "Camera failed to open" << endl << flush;
-        } 
+        In task.cpp :
+        
+          rt_mutex_acquire(&mutex_openCamera, TM_INFINITE);
+          if(camera.IsOpen()){
+              cout << "Camera is open" << endl << flush;
+              rt_task_wait_period(NULL); //Wait for period to grab the image
+              Img * img = new Img(camera.Grab());
+              MessageImg * msgImg = new MessageImg(MESSAGE_CAM_IMAGE, img);
+              WriteInQueue(&q_messageToMon, msgImg); 
+              rt_mutex_release(&mutex_openCamera);
+          }else{
+              rt_mutex_release(&mutex_openCamera);
+              cout << "Camera failed to open" << endl << flush;
+          } 
     
 
 Feature number 16 :
