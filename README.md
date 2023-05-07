@@ -64,10 +64,7 @@ Feature number 14 :
         // Synchronization barrier (waiting that all tasks are starting)
         rt_sem_p(&sem_barrier, TM_INFINITE);
         Message * msg;
-        RTIME task_period_ns= 100000000; //100 ms waiting time
-        //Making the task periodic
-        rt_task_set_periodic(NULL, TM_NOW, rt_timer_ns2ticks(task_period_ns));
-
+        
         while(1){
             msg = ReadInQueue(&q_messageToMon); //No need for mutex here
 
@@ -92,19 +89,41 @@ Feature number 15 :
   Added code to openCamera task :
   
         In task.cpp :
-        
-          rt_mutex_acquire(&mutex_openCamera, TM_INFINITE);
-          if(camera.IsOpen()){
-              cout << "Camera is open" << endl << flush;
-              rt_task_wait_period(NULL); //Wait for period to grab the image
-              Img * img = new Img(camera.Grab());
-              MessageImg * msgImg = new MessageImg(MESSAGE_CAM_IMAGE, img);
-              WriteInQueue(&q_messageToMon, msgImg); 
-              rt_mutex_release(&mutex_openCamera);
-          }else{
-              rt_mutex_release(&mutex_openCamera);
-              cout << "Camera failed to open" << endl << flush;
-          } 
+          
+          void Tasks::OpenCamera(void *arg){
+            cout << "Start " << __PRETTY_FUNCTION__ << endl << flush;
+            // Synchronization barrier (waiting that all tasks are starting)
+            rt_sem_p(&sem_barrier, TM_INFINITE);
+            Message * msg;
+            RTIME task_period_ns= 100000000; //100 ms waiting time
+            //Making the task periodic
+            rt_task_set_periodic(NULL, TM_NOW, rt_timer_ns2ticks(task_period_ns));
+
+            while(1){
+                msg = ReadInQueue(&q_messageToMon); //No need for mutex here
+
+                rt_sem_p(&sem_openCamera, TM_INFINITE); //Is this semaphore truly necessary?
+                if(msg->GetID() == MESSAGE_CAM_OPEN){
+                    cout << "Opening Camera..." << endl << flush;
+                    rt_mutex_acquire(&mutex_openCamera, TM_INFINITE);
+                    camera.Open();
+                    rt_mutex_release(&mutex_openCamera);   
+                }
+
+                rt_mutex_acquire(&mutex_openCamera, TM_INFINITE);
+                if(camera.IsOpen()){
+                    cout << "Camera is open" << endl << flush;
+                    rt_task_wait_period(NULL); //Wait for period to grab the image
+                    Img * img = new Img(camera.Grab());
+                    MessageImg * msgImg = new MessageImg(MESSAGE_CAM_IMAGE, img);
+                    WriteInQueue(&q_messageToMon, msgImg); 
+                    rt_mutex_release(&mutex_openCamera);
+                }else{
+                    rt_mutex_release(&mutex_openCamera);
+                    cout << "Camera failed to open" << endl << flush;
+                } 
+            }
+        }
     
 
 Feature number 16 :
