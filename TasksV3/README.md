@@ -32,11 +32,35 @@ the task acquires the mutex and opens the camera with the method ***Open()*** fr
 
 #### In tasks.h :
 
+```cpp
+RT_TASK th_openCamera;
+```
+
 #### In tasks.cpp :
 
-##### Task Creation :
+```cpp
 
-##### Task Code :
+/**
+ * @brief Thread handling the opening of the camera.
+*/
+
+void Tasks::OpenCamera(void *arg){
+    cout << "Start " << __PRETTY_FUNCTION__ << endl << flush;
+    // Synchronization barrier (waiting that all tasks are starting)
+    rt_sem_p(&sem_barrier, TM_INFINITE);
+    Message * msg;
+    while(1){
+        msg = ReadInQueue(&q_messageToMon); //No need for mutex here
+        if(msg->GetID() == MESSAGE_CAM_OPEN){
+            cout << "Opening Camera..." << endl << flush;
+            rt_mutex_acquire(&mutex_openCamera, TM_INFINITE);
+            camera.Open();
+            rt_mutex_release(&mutex_openCamera);
+        }
+        delete(msg);
+    }  
+}
+```
 
 ## Feature number 15 :
 
@@ -59,7 +83,13 @@ the image is sent to the monitor for it to be displayed.
 
 ### Added code to openCamera task :
 
-#### In task.cpp :
+#### In tasks.h :
+
+```cpp
+RT_TASK th_takePictures;
+```
+
+#### In tasks.cpp :
 
 ```cpp
 /**
@@ -121,11 +151,11 @@ the task acquires the mutex and closes the camera with the method ***Close()*** 
 
 #### In tasks.h :
 
+```cpp
+RT_TASK th_closeCamera;
+```
+
 #### In tasks.cpp :
-
-##### Task creation :
-
-##### Task code :
 
 ```cpp
 /**
@@ -165,6 +195,10 @@ and captures a single picture on which an arena boundary will be drawn provided 
 ### Added one task :
 
 #### In tasks.h :
+
+```cpp
+RT_TASK th_findArena;
+```
 
 #### In tasks.cpp :
 
@@ -244,6 +278,10 @@ take one picture and , using the saved arena, estimate the position of the robot
 ### Added one task :
 
 #### In tasks.h :
+
+```cpp
+RT_TASK th_positionRobot;
+```
 
 #### In tasks.cpp :
 
@@ -339,6 +377,10 @@ When the user asks to stop calculating the position , the supervisor must resume
 ### Added one task :
 
 #### In tasks.h :
+
+```cpp
+RT_TASK th_stopPosition;
+```
 
 #### In tasks.cpp :
 
