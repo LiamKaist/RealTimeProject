@@ -194,10 +194,11 @@ and captures a single picture on which an arena boundary will be drawn provided 
 
 ### Added one task :
 
-### Added one shared variable :
+### Added two shared variable :
 
 ```cpp
 int findingArena = 0;
+Arena * arenap;
 ```
 
 #### In tasks.h :
