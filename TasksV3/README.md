@@ -194,6 +194,12 @@ and captures a single picture on which an arena boundary will be drawn provided 
 
 ### Added one task :
 
+### Added one shared variable :
+
+```cpp
+int findingArena = 0;
+```
+
 #### In tasks.h :
 
 ```cpp
@@ -274,6 +280,12 @@ When the user asks for the position of the robot to be calculated, the task must
 take one picture and , using the saved arena, estimate the position of the robot while also annotating the current picture with that position.
 
 ### Explanations/Reasoning :
+
+### Added one shared variable :
+
+```cpp
+int sendingPosition = 0;
+```
 
 ### Added one task :
 
@@ -373,6 +385,12 @@ void Tasks::PositionRobot(void *arg)
 When the user asks to stop calculating the position , the supervisor must resume the regular picture taking task.
 
 ### Explanations/Reasoning :
+
+### Added one shared variable :
+
+```cpp
+int positionStopped = 0;
+```
 
 ### Added one task :
 
