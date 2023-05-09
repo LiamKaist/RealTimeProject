@@ -134,7 +134,7 @@ void Tasks::TakePictures(void *arg){
 
 ### Objective :
 
-Close the camera upon receiving a message from the Monitor and stop the image sending, make sure to notify monitor.
+Close the camera upon receiving a message from the Monitor and stop the image sending, make sure to notify monitor. [This task needs to be changed as it does not fully answer the requirements]
 
 ### Explanations/Reasoning :
 
