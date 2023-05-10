@@ -95,6 +95,11 @@ void Tasks::Init() {
         exit(EXIT_FAILURE);
     }
 
+    if (err = rt_mutex_create(&mutex_arenaInStock, NULL)) {
+        cerr << "Error mutex create: " << strerror(-err) << endl << flush;
+        exit(EXIT_FAILURE);
+    }
+
     if (err = rt_mutex_create(&mutex_sendingPosition, NULL)) {
         cerr << "Error mutex create: " << strerror(-err) << endl << flush;
         exit(EXIT_FAILURE);
@@ -571,8 +576,10 @@ void Tasks::TakePictures(void *arg){
         rt_mutex_acquire(&mutex_findingArena, TM_INFINITE);
         rt_mutex_acquire(&mutex_sendingPosition, TM_INFINITE);
         rt_mutex_acquire(&mutex_camera, TM_INFINITE);
+        rt_mutex_acquire(&mutex_arenaInStock,TM_INFINITE);
+        rt_mutex_acquire(&mutex_arenap, TM_INFINITE);
 
-        if ((findingArena == 0) && (sendingPosition == 0)){
+        if ((findingArena == 0) && (sendingPosition == 0) && (arenaInStock == 0)){
             if(camera.IsOpen()){
                 cout << "Camera is open" << endl << flush;
                 Img * img = new Img(camera.Grab());
@@ -585,7 +592,19 @@ void Tasks::TakePictures(void *arg){
             rt_sem_p(&sem_arenaDone,TM_INFINITE); //Wait for the semaphore to be broadcast by the arena task
         }else if(sendingPosition == 1){
             rt_sem_p(&sem_positionDone,TM_INFINITE); //Wait for the semaphore to be broadcast by the position task
+        } else if ((findingArena == 0) && (sendingPosition == 0) && (arenaInStock == 1)){ //Drawing the stored arena on every picture
+           if(camera.IsOpen()){
+                cout << "Camera is open and arena is in stock" << endl << flush;
+                Img * img = new Img(camera.Grab());
+                img->DrawArena(*arenap);
+                MessageImg * msgImg = new MessageImg(MESSAGE_CAM_IMAGE, img);
+                WriteInQueue(&q_messageToMon, msgImg); 
+            }else{
+                cout << "Camera is not open" << endl << flush;
+            } 
         }
+        rt_mutex_release(&mutex_arenap);
+        rt_mutex_release(&mutex_arenaInStock);
         rt_mutex_release(&mutex_camera);
         rt_mutex_release(&mutex_sendingPosition);
         rt_mutex_release(&mutex_findingArena);
@@ -659,6 +678,7 @@ void Tasks::FindArena(void *arg)
             cout << "Please confirm the arena (or not)..." << endl << flush;
 
             rt_sem_p(&sem_confirmation, TM_INFINITE);
+            rt_mutex_acquire(&arenaConfirmed,TM_INFINITE);
             if(arenaConfirmed == 1){
                 rt_mutex_acquire(&mutex_arenap, TM_INFINITE);
                 arenap = arena; //Not sure if a pointer can be put in shared data
@@ -667,6 +687,7 @@ void Tasks::FindArena(void *arg)
                 //Delete arena object
                 delete(arena); //Not sure if delete can delete any kind of pointer's content
             }
+            rt_mutex_release(&arenaConfirmed);
         }else{
             cout << "Camera is not open, cannot analyse image to find arena" << endl << flush;
         }
@@ -745,9 +766,8 @@ void Tasks::PositionRobot(void *arg)
             positionStopped=0; 
             rt_mutex_release(&mutex_positionStopped);
             //Restarting the regular picture taking task
-            rt_mutex_acquire(&mutex_sendingPosition, TM_INFINITE);
+            //The mutex for sendingPosition is already acquired
             sendingPosition=0; 
-            rt_mutex_release(&mutex_sendingPosition);
             rt_sem_broadcast(&sem_positionDone); //Sending semaphore to signal periodic task OpenCamera to take pictures
         }
     }

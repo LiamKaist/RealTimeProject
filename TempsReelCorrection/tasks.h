@@ -73,6 +73,7 @@ private:
     int move = MESSAGE_ROBOT_STOP;
     int findingArena = 0;
     int arenaConfirmed = 0;
+    int arenaInStock = 0;
     int sendingPosition = 0;
     int positionStopped = 0;
     
@@ -106,6 +107,7 @@ private:
     RT_MUTEX mutex_arenaConfirmed;
     RT_MUTEX mutex_sendingPosition;
     RT_MUTEX mutex_positionStopped;
+    RT_MUTEX mutex_arenaInStock;
 
     /**********************************************************************/
     /* Semaphores                                                         */
